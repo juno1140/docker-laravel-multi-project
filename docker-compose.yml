@@ -7,15 +7,19 @@ services:
     build:
       context: .
       dockerfile: ./infra/app/Dockerfile
+      target: php81
     volumes:
       - ./projects/project_1/:/app/project_1
+    working_dir: /app/project_1
 
   project_2:
     build:
       context: .
       dockerfile: ./infra/app/Dockerfile
+      target: php73
     volumes:
       - ./projects/project_2/:/app/project_2
+    working_dir: /app/project_2
 
   # [プロジェクト共通]webサーバーのコンテナ(プロジェクトごとにports,depends_on,volumesを設定)
   web:
