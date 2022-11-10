@@ -16,6 +16,23 @@ COPY ./infra/app/alias.sh /root/alias.sh
 RUN echo "source ~/alias.sh" >> ~/.bashrc
 
 
+FROM php:8.0-fpm as php80
+
+ENV TZ=Asia/Tokyo
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+RUN apt-get update && \
+	apt-get install -y git unzip libzip-dev libjpeg-dev libicu-dev libonig-dev nodejs npm libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
+    docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ && \
+    docker-php-ext-install intl pdo_mysql zip bcmath gd sockets exif
+
+COPY ./infra/app/php.ini /usr/local/etc/php/php.ini
+
+# コンテナ内で使えるalias
+COPY ./infra/app/alias.sh /root/alias.sh
+RUN echo "source ~/alias.sh" >> ~/.bashrc
+
 
 FROM php:7.4-fpm as php74
 
@@ -44,7 +61,6 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 RUN apt-get update && \
 	apt-get install -y git unzip libzip-dev libjpeg-dev libicu-dev libonig-dev nodejs npm libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
-    docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ && \
     docker-php-ext-install intl pdo_mysql zip bcmath gd sockets exif
 
 COPY ./infra/app/php.ini /usr/local/etc/php/php.ini
